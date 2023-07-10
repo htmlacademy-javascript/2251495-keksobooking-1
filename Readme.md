@@ -1,7 +1,7 @@
 # Личный проект «Кексобукинг»
 
 * Студент: [Maria Motovilova](https://up.htmlacademy.ru/javascript-individual/1/user/2251495).
-* Наставник: `Неизвестно`.
+* Наставник: [Глеб Клецков](https://htmlacademy.ru/profile/id1487865).
 
 ---
 
