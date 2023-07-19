@@ -44,42 +44,20 @@ const getRandomInteger = (a, b) => {
   return Math.floor(result);
 };
 
-// генератор случайных уникальных идентификаторов из диапазона
-
-function createRandomIdFromRangeGenerator (min, max) {
-  const previousValues = [];
-
-  return function () {
-    let currentValue = getRandomInteger(min, max);
-    if (previousValues.length >= (max - min + 1)) {
-      return null;
-    }
-    while (previousValues.includes(currentValue)) {
-      currentValue = getRandomInteger(min, max);
-    }
-    previousValues.push(currentValue);
-    return currentValue;
-  };
-}
-
-// нарастить строку
-
-const extendString = (string, length, extender) => {
-  if (string.length >= length) {
-    return string;
-  }
-  const extendLength = length - string.length;
-  let newString = extender.repeat(extendLength) + string;
-  if (newString.length > length) {
-    newString = extender.slice(0, extendLength % extender.length) + extender.repeat(extendLength / extender.length) + string;
-  }
-
-  return newString;
-};
-
 // получить уникальный номер фотографии
 
-const getPhotoId = () => extendString (createRandomIdFromRangeGenerator(1, 10), 2, 0);
+const makePhotoIdGenerator = () => {
+  let currentId = 0;
+  return () => {
+    currentId += 1;
+    if (currentId < 10) {
+      return `0${currentId}`;
+    }
+    return `${currentId}`;
+  };
+};
+
+const generatePhotoId = makePhotoIdGenerator();
 
 // получить случайный элемент массива
 
@@ -99,26 +77,26 @@ const getRandomLengthArray = (array) => {
 
 const createAdvertisement = () => ({
   author: {
-    avatar: `img/avatars/user${getPhotoId()}.png`, // 'img/avatars/user{{xx}}.png', УНИКАЛЬНЫЕ ЗНАЧЕНИЯ
+    avatar: `img/avatars/user/${generatePhotoId()}.png`,
   },
 
   offer: {
     title: getRandomArrayElement(TITLES),
     address: String(getRandomNumber(35.65, 35.7, 5), getRandomNumber(139.7, 139.8, 5)),
-    price: getRandomInteger(1000, 80000), // Случайное целое положительное число,
-    type: getRandomArrayElement(TYPES), // одно из пяти фиксированных значений: palace, flat, house, bungalow или hotel,
-    rooms: getRandomInteger(1, 5), // Случайное целое положительное число,
-    guests: getRandomInteger(1, 10),// Случайное целое положительное число,
-    checkin: getRandomArrayElement(HOURS), // одно из трёх фиксированных значений: 12:00, 13:00 или 14:00,
-    checkout: getRandomArrayElement(HOURS), // одно из трёх фиксированных значений: 12:00, 13:00 или 14:00,
-    features: getRandomLengthArray(FEATURES), // массив строк — массив случайной длины из значений: wifi, dishwasher, parking, washer, elevator, conditioner. Значения не должны повторяться,
+    price: getRandomInteger(1000, 80000),
+    type: getRandomArrayElement(TYPES),
+    rooms: getRandomInteger(1, 5),
+    guests: getRandomInteger(1, 10),
+    checkin: getRandomArrayElement(HOURS),
+    checkout: getRandomArrayElement(HOURS),
+    features: getRandomLengthArray(FEATURES),
     description: getRandomArrayElement(DESCRIPTIONS),
-    photos: getRandomLengthArray(PHOTOS), // массив строк — массив случайной длины из значений: https://assets.htmlacademy.ru/content/intensive/javascript-1/keksobooking/duonguyen-8LrGtIxxa4w.jpg, https://assets.htmlacademy.ru/content/intensive/javascript-1/keksobooking/brandon-hoogenboom-SNxQGWxZQi0.jpg, https://assets.htmlacademy.ru/content/intensive/javascript-1/keksobooking/claire-rendall-b6kAwr1i0Iw.jpg
+    photos: getRandomLengthArray(PHOTOS),
   },
 
   location: {
-    lat: getRandomNumber(35.65, 35.7, 5), // число с плавающей точкой — широта, случайное значение от 35.65000 до 35.70000,
-    lng: getRandomNumber(139.7, 139.8, 5), // число с плавающей точкой — долгота, случайное значение от 139.70000 до 139.80000,
+    lat: getRandomNumber(35.65, 35.7, 5),
+    lng: getRandomNumber(139.7, 139.8, 5),
   },
 });
 
