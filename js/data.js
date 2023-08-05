@@ -33,7 +33,7 @@ const createAdvertisement = () => ({
   offer: {
     title: getRandomArrayElement(TITLES),
     address: String(getRandomNumber(35.65, 35.7, 5), getRandomNumber(139.7, 139.8, 5)),
-    price: getRandomInteger(1000, 80000),
+    price: getRandomInteger(1000, 100000),
     type: getRandomArrayElement(TYPES),
     rooms: getRandomInteger(1, 5),
     guests: getRandomInteger(1, 10),
