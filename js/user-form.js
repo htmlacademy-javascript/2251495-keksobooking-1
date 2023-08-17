@@ -21,3 +21,26 @@ const disableForm = () => {
 };
 
 disableForm();
+
+const activateForm = () => {
+
+  advertisementForm.classList.remove('ad-form--disabled');
+
+  for (let i = 0; i < formElements.length; i++) {
+    formElements[i].removeAttribute('disabled');
+  }
+};
+
+activateForm();
+
+const activateFilters = () => {
+
+  mapForm.classList.remove('map__filters--disabled');
+
+  for (let i = 0; i < mapFilters.length; i++) {
+    mapFilters[i].removeAttribute('disabled');
+  }
+};
+
+activateFilters();
+
