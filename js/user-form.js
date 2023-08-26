@@ -52,7 +52,6 @@ const pristine = new Pristine(advertisementForm,
   {
     classTo: 'ad-form__element',
     errorClass: 'ad-form__element--invalid',
-    successClass: 'success__message', // ??????????????????
     errorTextParent: 'ad-form__element',
     errorTextTag: 'p',
     errorTextClass: 'error__message'
@@ -76,7 +75,7 @@ function validatePrice (value) {
   return Number(value) <= 100000;
 }
 
-pristine.validateTitle(
+pristine.addValidator(
   advertisementForm.querySelector('#price'),
   validatePrice,
   'Максимальная цена — 100000'
@@ -84,21 +83,21 @@ pristine.validateTitle(
 
 // Валидация количества комнат и количества мест
 
-const rooms = advertisementForm.querySelector('#room_number');
-const capacity = advertisementForm.querySelector('#capacity');
+const rooms = advertisementForm.querySelector('[name="rooms"]:selected');
+const capacity = advertisementForm.querySelector('[name="capacity"]:selected');
 
 const quantityRoomsForGuests = {
-  '1 комната': 'для 1 гостя',
-  '2 комнаты': ['для 2 гостей', 'для 1 гостя'],
-  '3 комнаты': ['для 3 гостей', 'для 2 гостей', 'для 1 гостя'],
-  '100 комнат': 'не для гостей'
+  '1': '1',
+  '2': ['2', '1'],
+  '3': ['3', '2', '1'],
+  '100': '0'
 };
 
 function validateCapacity () {
   return quantityRoomsForGuests[rooms.value].includes(capacity.value);
 }
 
-pristine.addValidator(capacity, validateCapacity); // Надо ли выводить какое-то сообщение об ошибке и где его брать?
+pristine.addValidator(capacity, validateCapacity);
 pristine.addValidator(rooms, validateCapacity);
 
 // Код, который реализует логику обработки пользовательского ввода для полей
@@ -109,15 +108,15 @@ const type = advertisementForm.querySelector('[name="type"]:selected');
 const price = advertisementForm.querySelector('#price');
 
 const minPrice = {
-  'Бунгало': 0,
-  'Квартира': 1000,
-  'Отель': 3000,
-  'Дом': 5000,
-  'Дворец': 10000
+  'bungalow': 0,
+  'flat': 1000,
+  'hotel': 3000,
+  'house': 5000,
+  'palace': 10000
 };
 
 function validateMinPrice (value) {
-  return Number(price.value) && Number(price.placeholder) >= minPrice[type.value]; // ??????????????????
+  return Number(value) >= minPrice[type.value];
 }
 
 function getPriceErrorMessage () {
@@ -126,8 +125,8 @@ function getPriceErrorMessage () {
 
 pristine.addValidator(price, validateMinPrice, getPriceErrorMessage);
 
-function onTypeChange () {
-  price.placeholder >= minPrice[this.value];
+function onTypeChange (evt) {
+  price.placeholder = minPrice[evt.target.value];
   pristine.validate(price);
 }
 
@@ -135,17 +134,17 @@ advertisementForm.querySelectorAll('[name="type"]').forEach((item) => item.addEv
 
 // Время заезда/выезда
 
-const timein = advertisementForm.querySelector('[name="timein":selected]');
+const timein = advertisementForm.querySelector('[name="timein"]:selected');
 const timeout = advertisementForm.querySelector('[name="timeout"]:selected');
 
 const checkTime = {
-  'После 12': 'Выезд до 12',
-  'После 13': 'Выезд до 13',
-  'После 14': 'Выезд до 14'
+  '12:00': '12:00',
+  '13:00': '13:00',
+  '14:00': '14:00'
 };
 
 function validateTime (value) {
-  return checkTime[timein.value] = timeout.value;
+  return checkTime[value] === timeout.value;
 }
 
 pristine.addValidator(timein, validateTime);
