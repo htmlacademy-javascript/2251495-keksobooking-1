@@ -54,7 +54,7 @@ const pristine = new Pristine(advertisementForm,
     errorClass: 'ad-form__element--invalid',
     errorTextParent: 'ad-form__element',
     errorTextTag: 'p',
-    errorTextClass: 'error__message'
+    errorTextClass: 'ad-form__error'
   }, false);
 
 // Валидация заголовка
@@ -83,8 +83,8 @@ pristine.addValidator(
 
 // Валидация количества комнат и количества мест
 
-const rooms = advertisementForm.querySelector('[name="rooms"]:selected');
-const capacity = advertisementForm.querySelector('[name="capacity"]:selected');
+const rooms = advertisementForm.querySelector('[name="rooms"]:checked');
+const capacity = advertisementForm.querySelector('[name="capacity"]:checked');
 
 const quantityRoomsForGuests = {
   '1': '1',
@@ -104,8 +104,8 @@ pristine.addValidator(rooms, validateCapacity);
 
 // Тип жилья
 
-const type = advertisementForm.querySelector('[name="type"]:selected');
 const price = advertisementForm.querySelector('#price');
+let type;
 
 const minPrice = {
   'bungalow': 0,
@@ -116,17 +116,18 @@ const minPrice = {
 };
 
 function validateMinPrice (value) {
-  return Number(value) >= minPrice[type.value];
+  return Number(value) >= minPrice[type];
 }
 
 function getPriceErrorMessage () {
-  return `минимальная цена за ночь ${minPrice[type.value]}`;
+  return `минимальная цена за ночь ${minPrice[type]}`;
 }
 
 pristine.addValidator(price, validateMinPrice, getPriceErrorMessage);
 
 function onTypeChange (evt) {
   price.placeholder = minPrice[evt.target.value];
+  type = evt.target.value;
   pristine.validate(price);
 }
 
@@ -134,21 +135,23 @@ advertisementForm.querySelectorAll('[name="type"]').forEach((item) => item.addEv
 
 // Время заезда/выезда
 
-const timein = advertisementForm.querySelector('[name="timein"]:selected');
-const timeout = advertisementForm.querySelector('[name="timeout"]:selected');
+const timein = advertisementForm.querySelector('#timein');
+const timeout = advertisementForm.querySelector('#timeout');
 
-const checkTime = {
-  '12:00': '12:00',
-  '13:00': '13:00',
-  '14:00': '14:00'
-};
-
-function validateTime (value) {
-  return checkTime[value] === timeout.value;
+function validateTimeIn (value) {
+  return value === timeout.value;
 }
 
-pristine.addValidator(timein, validateTime);
-pristine.addValidator(timeout, validateTime);
+function validateTimeout(value) {
+  return value === timein.value;
+}
+
+function getTimeErrorMessage() {
+  return 'Время заезда должно совпадать с временем выезда';
+}
+
+pristine.addValidator(timein, validateTimeIn, getTimeErrorMessage);
+pristine.addValidator(timeout, validateTimeout, getTimeErrorMessage);
 
 // Валидация перед отправкой формы
 
