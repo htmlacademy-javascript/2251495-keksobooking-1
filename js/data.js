@@ -27,7 +27,7 @@ const DESCRIPTIONS = [
 
 const createAdvertisement = () => ({
   author: {
-    avatar: `img/avatars/user/${generatePhotoId()}.png`,
+    avatar: `img/avatars/user${generatePhotoId()}.png`,
   },
 
   offer: {

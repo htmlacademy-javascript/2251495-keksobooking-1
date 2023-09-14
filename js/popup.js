@@ -1,9 +1,9 @@
-import {getAdvertisements} from './data.js';
+/*import {getAdvertisements} from './data.js';
 
-const advertisementsList = document.querySelector('#map-canvas');
+/*const advertisementsList = document.querySelector('#map-canvas');
 const cardTemplate = document.querySelector('#card').content.querySelector('.popup');
 
-const advertisements = getAdvertisements();
+const advertisements = getAdvertisements();*/
 
 const offerTypes = {
   flat: 'Квартира',
@@ -13,7 +13,7 @@ const offerTypes = {
   hotel: 'Отель',
 };
 
-const renderAdvertisements = () => {
+/*const renderAdvertisements = () => {
   const advertisementsListFragment = document.createDocumentFragment();
 
   advertisements.forEach(({author, offer}) => {
@@ -55,6 +55,6 @@ const renderAdvertisements = () => {
   advertisementsList.appendChild(advertisementsListFragment);
 
 };
-renderAdvertisements();
+renderAdvertisements();*/
 
-
+export { offerTypes };

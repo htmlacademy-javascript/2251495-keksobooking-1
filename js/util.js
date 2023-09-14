@@ -27,6 +27,10 @@ const makePhotoIdGenerator = () => {
     if (currentId < 10) {
       return `0${currentId}`;
     }
+
+    if (currentId > 10) {
+      currentId = 0;
+    }
     return `${currentId}`;
   };
 };
