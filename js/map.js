@@ -3,13 +3,17 @@ import { advertisementForm } from './user-form.js';
 import { formElements } from './user-form.js';
 import { mapForm } from './user-form.js';
 import { mapFilters } from './user-form.js';
-import { offerTypes } from './popup.js';
 
-// ------- Карта -------
-
+const offerTypes = {
+  flat: 'Квартира',
+  bungalow: 'Бунгало',
+  house: 'Дом',
+  palace: 'Дворец',
+  hotel: 'Отель',
+};
 const map = L.map('map-canvas')
   .on('load', () => {
-    advertisementForm.classList.remove('ad-form--disabled'); // активация формы
+    advertisementForm.classList.remove('ad-form--disabled');
 
     for (let i = 0; i < formElements.length; i++) {
       formElements[i].removeAttribute('disabled');
@@ -68,51 +72,48 @@ const icon = L.icon({
 const advertisements = getAdvertisements();
 const cardTemplate = document.querySelector('#card').content.querySelector('.popup');
 
-const createAdvertisementPopup = (offer) => {
+const createAdvertisementPopup = (advertisement) => {
 
   const popupFragment = document.createDocumentFragment();
 
   const popup = cardTemplate.cloneNode(true);
 
-  if (offer.title) {
-    popup.querySelector('.popup__title').textContent = offer.title;
+  if (advertisement.offer.title) {
+    popup.querySelector('.popup__title').textContent = advertisement.offer.title;
   }
-  if (offer.address) {
-    popup.querySelector('.popup__text--address').textContent = offer.address;
+  if (advertisement.offer.address) {
+    popup.querySelector('.popup__text--address').textContent = advertisement.offer.address;
   }
-  if (offer.price) {
-    popup.querySelector('.popup__text--price').textContent = `${offer.price} ₽/ночь`;
+  if (advertisement.offer.price) {
+    popup.querySelector('.popup__text--price').textContent = `${advertisement.offer.price} ₽/ночь`;
   }
-  if (offer.type) {
-    popup.querySelector('.popup__type').textContent = offerTypes[offer.type];
+  if (advertisement.offer.type) {
+    popup.querySelector('.popup__type').textContent = offerTypes[advertisement.offer.type];
   }
-  if (offer.rooms && offer.guests) {
-    popup.querySelector('.popup__text--capacity').textContent = `${offer.rooms} комнаты для ${offer.guests} гостей`;
+  if (advertisement.offer.rooms && advertisement.offer.guests) {
+    popup.querySelector('.popup__text--capacity').textContent = `${advertisement.offer.rooms} комнаты для ${advertisement.offer.guests} гостей`;
   }
-  if (offer.checkin && offer.checkout) {
-    popup.querySelector('.popup__text--time').textContent = `Заезд после ${offer.checkin}, выезд до ${offer.checkout}`;
+  if (advertisement.offer.checkin && advertisement.offer.checkout) {
+    popup.querySelector('.popup__text--time').textContent = `Заезд после ${advertisement.offer.checkin}, выезд до ${advertisement.offer.checkout}`;
   }
-  if (offer.features) {
-    popup.querySelector('.popup__features').textContent = offer.features;
+  if (advertisement.offer.features) {
+    popup.querySelector('.popup__features').textContent = advertisement.offer.features;
   }
-  if (offer.description) {
-    popup.querySelector('.popup__description').textContent = offer.description;
+  if (advertisement.offer.description) {
+    popup.querySelector('.popup__description').textContent = advertisement.offer.description;
   }
-  if (offer.photos) {
-    popup.querySelector('.popup__photos').setAttribute('src', offer.photos);
+  if (advertisement.offer.photos) {
+    popup.querySelector('.popup__photos').setAttribute('src', advertisement.offer.photos);
   }
-  if (offer.author.avatar) {
-    popup.querySelector('.popup__avatar').setAttribute('src', offer.author.avatar);
-  }
+  popup.querySelector('.popup__avatar').setAttribute('src', advertisement.author.avatar);
 
   cardTemplate.appendChild(popupFragment);
 
   return popup;
 };
 
-
-advertisements.forEach((offer) => {
-  const {location} = offer;
+advertisements.forEach((advertisement) => {
+  const {location} = advertisement;
   const {lat, lng} = location;
   const marker = L.marker(
     {
@@ -126,6 +127,6 @@ advertisements.forEach((offer) => {
 
   marker
     .addTo(map)
-    .bindPopup(createAdvertisementPopup(offer));
+    .bindPopup(createAdvertisementPopup(advertisement));
 });
 
