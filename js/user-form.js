@@ -22,30 +22,6 @@ const disableForm = () => {
 
 disableForm();
 
-// ------- Активация формы -------
-
-const activateForm = () => {
-
-  advertisementForm.classList.remove('ad-form--disabled');
-
-  for (let i = 0; i < formElements.length; i++) {
-    formElements[i].removeAttribute('disabled');
-  }
-};
-
-activateForm();
-
-const activateFilters = () => {
-
-  mapForm.classList.remove('map__filters--disabled');
-
-  for (let i = 0; i < mapFilters.length; i++) {
-    mapFilters[i].removeAttribute('disabled');
-  }
-};
-
-activateFilters();
-
 // ------- Валидация формы -------
 
 const pristine = new Pristine(advertisementForm,
@@ -125,10 +101,34 @@ function getPriceErrorMessage () {
 
 pristine.addValidator(price, validateMinPrice, getPriceErrorMessage);
 
+// ------- Слайдер -------
+
+const priceSlider = document.querySelector('.ad-form__slider');
+
+noUiSlider.create(priceSlider, {
+  range: {
+    min: 0,
+    max: 100000,
+  },
+  start: 0,
+  step: 1,
+  connect: 'lower',
+});
+
+priceSlider.noUiSlider.on('update', () => {
+  price.value = priceSlider.noUiSlider.get();
+});
+
 function onTypeChange (evt) {
   price.placeholder = minPrice[evt.target.value];
   type = evt.target.value;
   pristine.validate(price);
+  priceSlider.noUiSlider.updateOptions({
+    range: {
+      min: minPrice[type],
+      max: 100000,
+    }
+  });
 }
 
 advertisementForm.querySelectorAll('[name="type"]').forEach((item) => item.addEventListener('change', onTypeChange));
@@ -160,3 +160,7 @@ advertisementForm.addEventListener('submit', (evt) => {
   pristine.validate();
 });
 
+export { advertisementForm };
+export { formElements };
+export { mapForm };
+export { mapFilters };
