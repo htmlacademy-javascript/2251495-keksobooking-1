@@ -1,8 +1,5 @@
 import { getAdvertisements } from './data.js';
-import { advertisementForm } from './user-form.js';
-import { formElements } from './user-form.js';
-import { mapForm } from './user-form.js';
-import { mapFilters } from './user-form.js';
+import { advertisementForm, formElements, mapForm, mapFilters } from './user-form.js';
 
 const offerTypes = {
   flat: 'Квартира',

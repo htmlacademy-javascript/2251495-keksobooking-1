@@ -1,3 +1,5 @@
+import {sendData} from './api.js';
+
 const advertisementForm = document.querySelector('.ad-form');
 const formElements = advertisementForm.children;
 const mapForm = document.querySelector('.map__filters');
@@ -157,10 +159,11 @@ pristine.addValidator(timeout, validateTimeout, getTimeErrorMessage);
 
 advertisementForm.addEventListener('submit', (evt) => {
   evt.preventDefault();
-  pristine.validate();
+  const isValid = pristine.validate();
+  if (isValid) {
+    const formData = new FormData(evt.target);
+  }
 });
 
-export { advertisementForm };
-export { formElements };
-export { mapForm };
-export { mapFilters };
+export { advertisementForm, formElements, mapForm, mapFilters };
+
