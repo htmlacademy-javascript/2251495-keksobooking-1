@@ -1,5 +1,4 @@
-//import {getAdvertisements} from './data.js';
-import {advertisementForm, formElements, mapForm, mapFilters} from './user-form.js';
+import {advertisementForm, formElements} from './user-form.js';
 
 const offerTypes = {
   flat: 'Квартира',
@@ -14,12 +13,6 @@ const map = L.map('map-canvas')
 
     for (let i = 0; i < formElements.length; i++) {
       formElements[i].removeAttribute('disabled');
-    }
-
-    mapForm.classList.remove('map__filters--disabled');
-
-    for (let i = 0; i < mapFilters.length; i++) {
-      mapFilters[i].removeAttribute('disabled');
     }
   }).setView({
     lat: 35.6895,
@@ -126,4 +119,4 @@ const createAdvertisementMarker = (advertisement) => {
     .bindPopup(createAdvertisementPopup(advertisement));
 };
 
-export {createAdvertisementMarker};
+export {createAdvertisementMarker, mainPinMarker};

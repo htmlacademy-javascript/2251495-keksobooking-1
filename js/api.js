@@ -1,4 +1,5 @@
 import {isEscapeKey} from './util.js';
+import {activateFilters} from './user-form.js';
 
 const BASE_URL = 'https://28.javascript.pages.academy/keksobooking';
 const Route = {
@@ -55,13 +56,12 @@ const getData = () => fetch(
     if (!response.ok) {
       throw new Error();
     }
+    activateFilters();
     return response.json();
   })
   .catch(() => {
     throw new Error('Не удалось загрузить данные'); // какое сообщение? придумать текст и стили?
   });
-
-//Реализуйте переход фильтров в активное состояние при успешной загрузке данных.
 
 
 // ------- Отправка данных -------
@@ -84,8 +84,4 @@ const sendData = (body) => fetch(
 
 export {getData, sendData, showSuccessMessage, showErrorMessage};
 
-
-//Реализуйте возвращение формы в исходное состояние при успешной отправке, а также показ сообщения пользователю.
-
-//Похожим образом обработайте нажатие на кнопку сброса.*/
 

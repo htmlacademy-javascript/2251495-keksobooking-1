@@ -1,4 +1,5 @@
-import {sendData, showErrorMessage} from './api.js';
+import {sendData, showSuccessMessage, showErrorMessage} from './api.js';
+import {mainPinMarker} from './map.js';
 
 const advertisementForm = document.querySelector('.ad-form');
 const formElements = advertisementForm.children;
@@ -24,6 +25,16 @@ const disableForm = () => {
 };
 
 disableForm();
+
+// Активация фильтров
+
+const activateFilters = () => {
+  mapForm.classList.remove('map__filters--disabled');
+
+  for (let i = 0; i < mapFilters.length; i++) {
+    mapFilters[i].removeAttribute('disabled');
+  }
+};
 
 // ------- Валидация формы -------
 
@@ -164,7 +175,11 @@ const clearFormFields = () => {
   const inputTextElements = document.querySelectorAll('input[type="text"]');
   const inputCheckboxElements = document.querySelectorAll('input[type="checkbox"]');
   const inputFileElements = document.querySelectorAll('input[type="file"]');
-
+  const mainPinMarkerlatLng =
+  {
+    lat: 35.6895,
+    lng: 139.692,
+  };
 
   for (let i = 0; i < selectElements.length; i++) {
     selectElements[i].selectedIndex = 0;
@@ -185,6 +200,10 @@ const clearFormFields = () => {
   }
 
   priceSlider.noUiSlider.reset();
+
+  mainPinMarker.setLatLng(mainPinMarkerlatLng);
+
+  showSuccessMessage();
 };
 
 const resetButton = document.querySelector('.ad-form__reset');
@@ -217,5 +236,5 @@ const setUserFormSubmit = (onSuccess) => {
   });
 };
 
-export {advertisementForm, formElements, mapForm, mapFilters, setUserFormSubmit, clearFormFields};
+export {advertisementForm, formElements, mapForm, mapFilters, activateFilters, setUserFormSubmit, clearFormFields};
 
