@@ -1,20 +1,53 @@
+import {isEscapeKey} from './util.js';
+
 const BASE_URL = 'https://28.javascript.pages.academy/keksobooking';
 const Route = {
   GET_DATA: '/data',
   SEND_DATA: '/',
 };
-const Method = {
-  GET: 'GET',
-  POST: 'POST',
-};
 
 const errorTemplate = document.querySelector('#error').content.querySelector('.error');
 const errorFragment = document.createDocumentFragment();
+const successTemplate = document.querySelector('#success').content.querySelector('.success');
+const successFragment = document.createDocumentFragment();
+
+const errorButton = document.querySelector('.error__button');
+
+const showSuccessMessage = () => {
+  const success = successTemplate.cloneNode(true);
+  document.body.appendChild(successFragment);
+
+  document.addEventListener('click', () => {
+    success.classList.add('hidden');
+  });
+
+  document.addEventListener('keydown', (evt) => {
+    if (isEscapeKey(evt)) {
+      success.classList.add('hidden');
+    }
+  });
+};
+
+const showErrorMessage = () => {
+  const error = errorTemplate.cloneNode(true);
+  document.body.appendChild(errorFragment);
+
+  errorButton.addEventListener('click', () => {
+    error.classList.add('hidden');
+  });
+
+  document.addEventListener('click', () => {
+    error.classList.add('hidden');
+  });
+
+  document.addEventListener('keydown', (evt) => {
+    if (isEscapeKey(evt)) {
+      error.classList.add('hidden');
+    }
+  });
+};
 
 // ------- Получение данных -------
-
-//Доработайте модуль для отрисовки меток на карте так, чтобы в качестве данных использовались не случайно сгенерированные объекты, а те данные,
-//которые вы загрузите с сервера.
 
 const getData = () => fetch(
   `${BASE_URL}${Route.GET_DATA}`)
@@ -25,12 +58,10 @@ const getData = () => fetch(
     return response.json();
   })
   .catch(() => {
-    throw new Error(ErrorText.GET_DATA); // здесь текст из шаблона?
+    throw new Error('Не удалось загрузить данные'); // какое сообщение? придумать текст и стили?
   });
 
-//Добавьте обработку возможных ошибок при загрузке.
-
-//Реализуйте переход фильтров в активное состояние при успешной загрузке данных.*/
+//Реализуйте переход фильтров в активное состояние при успешной загрузке данных.
 
 
 // ------- Отправка данных -------
@@ -45,20 +76,16 @@ const sendData = (body) => fetch(
     if (!response.ok) {
       throw new Error();
     }
+    showSuccessMessage();
   })
   .catch(() => {
-    throw new Error('Не удалось отправить форму. Попробуйте ещё раз'); // какое сообщение? как выводить, фрагментом?
+    showErrorMessage();
   });
 
-export {getData, sendData};
+export {getData, sendData, showSuccessMessage, showErrorMessage};
 
-
-//Добавьте обработчик отправки формы, если ещё этого не сделали, который бы отменял действие формы по умолчанию и отправлял
-//данные формы посредством fetch на сервер.
 
 //Реализуйте возвращение формы в исходное состояние при успешной отправке, а также показ сообщения пользователю.
-
-//Если при отправке данных произошла ошибка запроса, покажите соответствующее сообщение.
 
 //Похожим образом обработайте нажатие на кнопку сброса.*/
 

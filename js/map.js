@@ -1,5 +1,5 @@
-import { getAdvertisements } from './data.js';
-import { advertisementForm, formElements, mapForm, mapFilters } from './user-form.js';
+//import {getAdvertisements} from './data.js';
+import {advertisementForm, formElements, mapForm, mapFilters} from './user-form.js';
 
 const offerTypes = {
   flat: 'Квартира',
@@ -66,7 +66,6 @@ const icon = L.icon({
   iconAnchor: [20, 40],
 });
 
-const advertisements = getAdvertisements();
 const cardTemplate = document.querySelector('#card').content.querySelector('.popup');
 
 const createAdvertisementPopup = (advertisement) => {
@@ -109,7 +108,7 @@ const createAdvertisementPopup = (advertisement) => {
   return popup;
 };
 
-advertisements.forEach((advertisement) => {
+const createAdvertisementMarker = (advertisement) => {
   const {location} = advertisement;
   const {lat, lng} = location;
   const marker = L.marker(
@@ -125,5 +124,6 @@ advertisements.forEach((advertisement) => {
   marker
     .addTo(map)
     .bindPopup(createAdvertisementPopup(advertisement));
-});
+};
 
+export {createAdvertisementMarker};

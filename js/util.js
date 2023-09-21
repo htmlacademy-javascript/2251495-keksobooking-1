@@ -1,3 +1,5 @@
+const isEscapeKey = (evt) => evt.key === 'Escape';
+
 // получение случайного числа из диапазона с плавающей точкой
 
 const getRandomNumber = (startNumber, lastNumber, quantitySymbols) => {
@@ -51,4 +53,4 @@ const getRandomLengthArray = (array) => {
   return randomLengthArray;
 };
 
-export {getRandomNumber, getRandomArrayElement, getRandomLengthArray, generatePhotoId, getRandomInteger};
+export {getRandomNumber, getRandomArrayElement, getRandomLengthArray, generatePhotoId, getRandomInteger, isEscapeKey};

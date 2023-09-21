@@ -1,9 +1,10 @@
-import {sendData} from './api.js';
+import {sendData, showErrorMessage} from './api.js';
 
 const advertisementForm = document.querySelector('.ad-form');
 const formElements = advertisementForm.children;
 const mapForm = document.querySelector('.map__filters');
 const mapFilters = mapForm.children;
+const submitButton = document.querySelector('.ad-form__submit');
 
 // ------- Дезактивация формы -------
 
@@ -155,15 +156,66 @@ function getTimeErrorMessage() {
 pristine.addValidator(timein, validateTimeIn, getTimeErrorMessage);
 pristine.addValidator(timeout, validateTimeout, getTimeErrorMessage);
 
+// Очистка формы после отправки
+
+const clearFormFields = () => {
+  const selectElements = document.querySelectorAll('select');
+  const textareaElement = document.querySelector('#description');
+  const inputTextElements = document.querySelectorAll('input[type="text"]');
+  const inputCheckboxElements = document.querySelectorAll('input[type="checkbox"]');
+  const inputFileElements = document.querySelectorAll('input[type="file"]');
+
+
+  for (let i = 0; i < selectElements.length; i++) {
+    selectElements[i].selectedIndex = 0;
+  }
+
+  textareaElement.value = '';
+
+  for (let i = 0; i < inputTextElements.length; i++) {
+    inputTextElements[i].value = '';
+  }
+
+  for (let i = 0; i < inputCheckboxElements.length; i++) {
+    inputCheckboxElements[i].checked = false;
+  }
+
+  for (let i = 0; i < inputFileElements.length; i++) {
+    inputFileElements[i].value = '';
+  }
+
+  priceSlider.noUiSlider.reset();
+};
+
+const resetButton = document.querySelector('.ad-form__reset');
+resetButton.addEventListener('click', clearFormFields);
+
+const blockSubmitButton = () => {
+  submitButton.disabled = true;
+};
+
+const unblockSubmitButton = () => {
+  submitButton.disabled = false;
+};
+
 // Валидация перед отправкой формы
 
-advertisementForm.addEventListener('submit', (evt) => {
-  evt.preventDefault();
-  const isValid = pristine.validate();
-  if (isValid) {
-    const formData = new FormData(evt.target);
-  }
-});
+const setUserFormSubmit = (onSuccess) => {
+  advertisementForm.addEventListener('submit', (evt) => {
+    evt.preventDefault();
+    const isValid = pristine.validate();
+    if (isValid) {
+      blockSubmitButton();
+      const formData = new FormData(evt.target);
+      sendData(formData)
+        .then(onSuccess)
+        .catch((err) => {
+          showErrorMessage(err.message);
+        })
+        .finally(unblockSubmitButton);
+    }
+  });
+};
 
-export { advertisementForm, formElements, mapForm, mapFilters };
+export {advertisementForm, formElements, mapForm, mapFilters, setUserFormSubmit, clearFormFields};
 
