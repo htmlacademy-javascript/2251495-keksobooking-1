@@ -10,13 +10,12 @@ const Route = {
 const errorTemplate = document.querySelector('#error').content.querySelector('.error');
 const errorFragment = document.createDocumentFragment();
 const successTemplate = document.querySelector('#success').content.querySelector('.success');
-const successFragment = document.createDocumentFragment();
 
 const errorButton = document.querySelector('.error__button');
 
 const showSuccessMessage = () => {
   const success = successTemplate.cloneNode(true);
-  document.body.appendChild(successFragment);
+  document.body.appendChild(success);
 
   document.addEventListener('click', () => {
     success.classList.add('hidden');

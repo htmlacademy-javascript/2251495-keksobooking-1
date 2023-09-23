@@ -1,5 +1,5 @@
 import {sendData, showSuccessMessage, showErrorMessage} from './api.js';
-import {mainPinMarker} from './map.js';
+import {mainPinMarker, map} from './map.js';
 
 const advertisementForm = document.querySelector('.ad-form');
 const formElements = advertisementForm.children;
@@ -202,6 +202,8 @@ const clearFormFields = () => {
   priceSlider.noUiSlider.reset();
 
   mainPinMarker.setLatLng(mainPinMarkerlatLng);
+
+  map.closePopup();
 
   showSuccessMessage();
 };

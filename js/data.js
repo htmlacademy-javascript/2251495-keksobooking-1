@@ -54,4 +54,4 @@ const createAdvertisement = () => ({
 
 const getAdvertisements = () => Array.from({length: ADVERTISEMENTS_QUANTITY}, createAdvertisement);
 
-export {getAdvertisements};
+export {getAdvertisements, ADVERTISEMENTS_QUANTITY};

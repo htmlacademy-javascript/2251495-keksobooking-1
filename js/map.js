@@ -1,4 +1,5 @@
-import {advertisementForm, formElements} from './user-form.js';
+const advertisementForm = document.querySelector('.ad-form');
+const formElements = advertisementForm.children;
 
 const offerTypes = {
   flat: 'Квартира',
@@ -7,13 +8,18 @@ const offerTypes = {
   palace: 'Дворец',
   hotel: 'Отель',
 };
+
+const activateForm = () => {
+  advertisementForm.classList.remove('ad-form--disabled');
+
+  for (let i = 0; i < formElements.length; i++) {
+    formElements[i].removeAttribute('disabled');
+  }
+};
+
 const map = L.map('map-canvas')
   .on('load', () => {
-    advertisementForm.classList.remove('ad-form--disabled');
-
-    for (let i = 0; i < formElements.length; i++) {
-      formElements[i].removeAttribute('disabled');
-    }
+    activateForm();
   }).setView({
     lat: 35.6895,
     lng: 139.692,
@@ -25,7 +31,6 @@ L.tileLayer(
     attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
   },
 ).addTo(map);
-
 
 const mainPinIcon = L.icon({
   iconUrl: './img/main-pin.svg',
@@ -119,4 +124,4 @@ const createAdvertisementMarker = (advertisement) => {
     .bindPopup(createAdvertisementPopup(advertisement));
 };
 
-export {createAdvertisementMarker, mainPinMarker};
+export {createAdvertisementMarker, mainPinMarker, map};

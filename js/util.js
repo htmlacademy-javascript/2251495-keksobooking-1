@@ -53,4 +53,12 @@ const getRandomLengthArray = (array) => {
   return randomLengthArray;
 };
 
-export {getRandomNumber, getRandomArrayElement, getRandomLengthArray, generatePhotoId, getRandomInteger, isEscapeKey};
+function debounce (callback, timeoutDelay = 500) {
+  let timeoutId;
+  return (...rest) => {
+    clearTimeout(timeoutId);
+    timeoutId = setTimeout(() => callback.apply(this, rest), timeoutDelay);
+  };
+}
+
+export {getRandomNumber, getRandomArrayElement, getRandomLengthArray, generatePhotoId, getRandomInteger, isEscapeKey, debounce};
