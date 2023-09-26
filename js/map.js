@@ -54,6 +54,8 @@ mainPinMarker.addTo(map);
 
 const address = advertisementForm.querySelector('[name="address"]');
 
+address.value = '35.6895, 139.692';
+
 mainPinMarker.on('moveend', (evt) => {
   address.value = `${(evt.target.getLatLng().lat).toFixed(5)}, ${(evt.target.getLatLng().lng).toFixed(5)}`;
 });
@@ -124,4 +126,4 @@ const createAdvertisementMarker = (advertisement) => {
     .bindPopup(createAdvertisementPopup(advertisement));
 };
 
-export {createAdvertisementMarker, mainPinMarker, map};
+export {createAdvertisementMarker, mainPinMarker, map, address, activateForm};

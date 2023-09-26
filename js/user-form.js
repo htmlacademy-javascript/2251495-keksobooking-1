@@ -1,11 +1,21 @@
 import {sendData, showSuccessMessage, showErrorMessage} from './api.js';
-import {mainPinMarker, map} from './map.js';
+import {mainPinMarker, map, address} from './map.js';
 
 const advertisementForm = document.querySelector('.ad-form');
 const formElements = advertisementForm.children;
 const mapForm = document.querySelector('.map__filters');
 const mapFilters = mapForm.children;
 const submitButton = document.querySelector('.ad-form__submit');
+
+// Активация фильтров
+
+const activateFilters = () => {
+  mapForm.classList.remove('map__filters--disabled');
+
+  for (let i = 0; i < mapFilters.length; i++) {
+    mapFilters[i].removeAttribute('disabled');
+  }
+};
 
 // ------- Дезактивация формы -------
 
@@ -26,15 +36,6 @@ const disableForm = () => {
 
 disableForm();
 
-// Активация фильтров
-
-const activateFilters = () => {
-  mapForm.classList.remove('map__filters--disabled');
-
-  for (let i = 0; i < mapFilters.length; i++) {
-    mapFilters[i].removeAttribute('disabled');
-  }
-};
 
 // ------- Валидация формы -------
 
@@ -87,8 +88,12 @@ function validateCapacity () {
   return quantityRoomsForGuests[rooms.value].includes(capacity.value);
 }
 
-pristine.addValidator(capacity, validateCapacity);
-pristine.addValidator(rooms, validateCapacity);
+function getCapacityErrorMessage () {
+  return 'количество мест не соответствует количеству комнат';
+}
+
+pristine.addValidator(capacity, validateCapacity, getCapacityErrorMessage);
+pristine.addValidator(rooms, validateCapacity, getCapacityErrorMessage);
 
 // Код, который реализует логику обработки пользовательского ввода для полей
 
@@ -204,6 +209,8 @@ const clearFormFields = () => {
   mainPinMarker.setLatLng(mainPinMarkerlatLng);
 
   map.closePopup();
+
+  address.value = '35.6895, 139.692';
 
   showSuccessMessage();
 };

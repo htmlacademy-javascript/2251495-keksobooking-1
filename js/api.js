@@ -12,10 +12,15 @@ const errorFragment = document.createDocumentFragment();
 const successTemplate = document.querySelector('#success').content.querySelector('.success');
 
 const errorButton = document.querySelector('.error__button');
+const ALERT_SHOW_TIME = 800;
 
 const showSuccessMessage = () => {
   const success = successTemplate.cloneNode(true);
   document.body.appendChild(success);
+
+  setTimeout(() => {
+    success.remove();
+  }, ALERT_SHOW_TIME);
 
   document.addEventListener('click', () => {
     success.classList.add('hidden');
