@@ -93,13 +93,25 @@ const createAdvertisementPopup = (advertisement) => {
     popup.querySelector('.popup__text--time').textContent = `Заезд после ${advertisement.offer.checkin}, выезд до ${advertisement.offer.checkout}`;
   }
   if (advertisement.offer.features) {
-    popup.querySelector('.popup__features').textContent = advertisement.offer.features;
+    advertisement.offer.features.forEach((feature) => {
+      const li = document.createElement('li');
+      li.classList.add('popup__feature');
+      li.classList.add(`popup__feature--${feature}`);
+      popup.querySelector('.popup__features').appendChild(li);
+    });
   }
   if (advertisement.offer.description) {
     popup.querySelector('.popup__description').textContent = advertisement.offer.description;
   }
   if (advertisement.offer.photos) {
-    popup.querySelector('.popup__photos').setAttribute('src', advertisement.offer.photos);
+    for (let i = 0; i < advertisement.offer.photos.length; i++) {
+      const img = document.createElement('img');
+      img.setAttribute('src', advertisement.offer.photos[i]);
+      img.setAttribute('width', '45');
+      img.setAttribute('height', '40');
+      img.classList.add('popup__photo');
+      popup.querySelector('.popup__photos').appendChild(img);
+    }
   }
   popup.querySelector('.popup__avatar').setAttribute('src', advertisement.author.avatar);
 

@@ -1,49 +1,77 @@
-import {map} from './map.js';
+import { map, createAdvertisementMarker } from './map.js';
 
 // Фильтрация для объявлений
 
+const verifyPrice = (advertisement) => {
+  const housingPrice = document.querySelector('#housing-price').value;
+
+  if (housingPrice === 'any') {
+    return true;
+  }
+
+  if (housingPrice === 'low') {
+    return advertisement.offer.price < 10000;
+  }
+
+  if (housingPrice === 'middle') {
+    return advertisement.offer.price > 10000 && advertisement.offer.price <= 50000;
+  }
+
+  if (housingPrice === 'high') {
+    return advertisement.offer.price > 50000;
+  }
+};
+
 const filterMapFilters = (advertisement) => {
   const housingType = document.querySelector('#housing-type');
-  const housingPrice = document.querySelector('#housing-price');
   const housingRooms = document.querySelector('#housing-rooms');
   const housingGuests = document.querySelector('#housing-guests');
-  const housingFeatures = document.getElementsByName('[name="features"]:checked');
+  const housingFeatures = document.querySelectorAll('.map__checkbox:checked');
 
-  if ((advertisement.offer.type.value === housingType.value &&
-      advertisement.offer.rooms.value === housingRooms.value &&
-      advertisement.offer.guests.value === housingGuests.value) &&
-      ((advertisement.offer.price > 10000 && advertisement.offer.price <= 50000)
-      || advertisement.offer.price < 10000 || advertisement.offer.price > 50000)) {
+  const isHousingTypeMatches = housingType.value === 'any' || advertisement.offer.type === housingType.value;
+  const isRoomsMatches = housingRooms.value === 'any' || advertisement.offer.rooms === Number(housingRooms.value);
+  const isGuestsMatches = housingGuests.value === 'any' || advertisement.offer.guests === Number(housingGuests.value);
+  const isPriceMatches = verifyPrice(advertisement);
 
-    if (housingType.value === ('any' || undefined), housingRooms.value === ('any' || undefined),
-    housingGuests.value === ('any' || undefined), housingPrice.value === ('any' || undefined)) {
-      return advertisement;
+  const isFeaturesMatches = Array.from(housingFeatures).every((feature) => {
+    if (advertisement.offer.features) {
+      return advertisement.offer.features.includes(feature.value);
     }
+    return false;
+  });
 
-    if (Array.from(housingFeatures).every((feature) => advertisement.offer.features.contains(feature))) {
-      return advertisement;
-    }
+  if (isHousingTypeMatches && isRoomsMatches && isGuestsMatches && isFeaturesMatches && isPriceMatches) {
+    return true;
   }
+
+  return false;
 };
 
-const setFilterClick = () => {
-  const filterElements = document.querySelectorAll('.map__filter');
-  for (let i = 0; i <= filterElements.length; i++) {
-    filterElements[i].addEventListener('click', () => {
-    // перерисовка объявлений - advertisements.forEach(createAdvertisementMarker (advertisement)) ????
-      map.closePopup(); // чтобы скрыть балун при изменении фильтров?
-    });
-  }
-};
-
-const setFeaturesClick = () => {
+const onFilterChange = (advertisements) => {
   const featuresElements = document.querySelectorAll('.map__checkbox');
-  for (let i = 0; i <= featuresElements.length; i++) {
-    featuresElements[i].addEventListener('click', () => {
+  const filterElements = document.querySelectorAll('.map__filter');
+  const filters = [...featuresElements, ...filterElements];
 
-      map.closePopup(); // чтобы скрыть балун при изменении фильтров?
+  for (let i = 0; i < filters.length; i++) {
+    filters[i].addEventListener('change', () => {
+      let layerIndex = 0;
+      map.eachLayer((layer) => {
+        if (layerIndex < 2) {
+          layerIndex += 1;
+          return;
+        }
+
+        layerIndex += 1;
+        layer.remove();
+      });
+      map.closePopup();
+
+      advertisements
+        .filter(filterMapFilters)
+        .slice(0, 9)
+        .forEach((advertisement) => createAdvertisementMarker(advertisement));
     });
   }
 };
 
-export {filterMapFilters, setFilterClick, setFeaturesClick};
+export { filterMapFilters, onFilterChange };
