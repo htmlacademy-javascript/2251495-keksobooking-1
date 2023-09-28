@@ -7,8 +7,6 @@ import { ADVERTISEMENTS_QUANTITY } from './data.js';
 import { debounce } from './util.js';
 import { filterMapFilters, onFilterChange } from './filter.js';
 
-const RERENDER_DELAY = 500;
-
 getData()
   .then((advertisements) => {
     advertisements
@@ -17,7 +15,7 @@ getData()
       .slice(0, ADVERTISEMENTS_QUANTITY)
       .forEach(createAdvertisementMarker);
     activateForm();
-    debounce(onFilterChange(advertisements), RERENDER_DELAY);
+    debounce(onFilterChange(advertisements));
   });
 
 setUserFormSubmit(clearFormFields);
