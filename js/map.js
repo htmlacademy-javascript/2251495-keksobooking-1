@@ -1,29 +1,27 @@
-import { getAdvertisements } from './data.js';
-import { advertisementForm } from './user-form.js';
-import { formElements } from './user-form.js';
-import { mapForm } from './user-form.js';
-import { mapFilters } from './user-form.js';
+const DEFAULT_COORDINATES = '35.6895, 139.692';
 
-const offerTypes = {
+const advertisementForm = document.querySelector('.ad-form');
+const formElements = advertisementForm.children;
+
+const OfferType = {
   flat: 'Квартира',
   bungalow: 'Бунгало',
   house: 'Дом',
   palace: 'Дворец',
   hotel: 'Отель',
 };
+
+const activateForm = () => {
+  advertisementForm.classList.remove('ad-form--disabled');
+
+  for (let i = 0; i < formElements.length; i++) {
+    formElements[i].removeAttribute('disabled');
+  }
+};
+
 const map = L.map('map-canvas')
   .on('load', () => {
-    advertisementForm.classList.remove('ad-form--disabled');
-
-    for (let i = 0; i < formElements.length; i++) {
-      formElements[i].removeAttribute('disabled');
-    }
-
-    mapForm.classList.remove('map__filters--disabled');
-
-    for (let i = 0; i < mapFilters.length; i++) {
-      mapFilters[i].removeAttribute('disabled');
-    }
+    activateForm();
   }).setView({
     lat: 35.6895,
     lng: 139.692,
@@ -35,7 +33,6 @@ L.tileLayer(
     attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
   },
 ).addTo(map);
-
 
 const mainPinIcon = L.icon({
   iconUrl: './img/main-pin.svg',
@@ -59,6 +56,8 @@ mainPinMarker.addTo(map);
 
 const address = advertisementForm.querySelector('[name="address"]');
 
+address.value = DEFAULT_COORDINATES;
+
 mainPinMarker.on('moveend', (evt) => {
   address.value = `${(evt.target.getLatLng().lat).toFixed(5)}, ${(evt.target.getLatLng().lng).toFixed(5)}`;
 });
@@ -69,7 +68,6 @@ const icon = L.icon({
   iconAnchor: [20, 40],
 });
 
-const advertisements = getAdvertisements();
 const cardTemplate = document.querySelector('#card').content.querySelector('.popup');
 
 const createAdvertisementPopup = (advertisement) => {
@@ -88,7 +86,7 @@ const createAdvertisementPopup = (advertisement) => {
     popup.querySelector('.popup__text--price').textContent = `${advertisement.offer.price} ₽/ночь`;
   }
   if (advertisement.offer.type) {
-    popup.querySelector('.popup__type').textContent = offerTypes[advertisement.offer.type];
+    popup.querySelector('.popup__type').textContent = OfferType[advertisement.offer.type];
   }
   if (advertisement.offer.rooms && advertisement.offer.guests) {
     popup.querySelector('.popup__text--capacity').textContent = `${advertisement.offer.rooms} комнаты для ${advertisement.offer.guests} гостей`;
@@ -97,13 +95,25 @@ const createAdvertisementPopup = (advertisement) => {
     popup.querySelector('.popup__text--time').textContent = `Заезд после ${advertisement.offer.checkin}, выезд до ${advertisement.offer.checkout}`;
   }
   if (advertisement.offer.features) {
-    popup.querySelector('.popup__features').textContent = advertisement.offer.features;
+    advertisement.offer.features.forEach((feature) => {
+      const li = document.createElement('li');
+      li.classList.add('popup__feature');
+      li.classList.add(`popup__feature--${feature}`);
+      popup.querySelector('.popup__features').appendChild(li);
+    });
   }
   if (advertisement.offer.description) {
     popup.querySelector('.popup__description').textContent = advertisement.offer.description;
   }
   if (advertisement.offer.photos) {
-    popup.querySelector('.popup__photos').setAttribute('src', advertisement.offer.photos);
+    for (let i = 0; i < advertisement.offer.photos.length; i++) {
+      const img = document.createElement('img');
+      img.setAttribute('src', advertisement.offer.photos[i]);
+      img.setAttribute('width', '45');
+      img.setAttribute('height', '40');
+      img.classList.add('popup__photo');
+      popup.querySelector('.popup__photos').appendChild(img);
+    }
   }
   popup.querySelector('.popup__avatar').setAttribute('src', advertisement.author.avatar);
 
@@ -112,7 +122,7 @@ const createAdvertisementPopup = (advertisement) => {
   return popup;
 };
 
-advertisements.forEach((advertisement) => {
+const createAdvertisementMarker = (advertisement) => {
   const {location} = advertisement;
   const {lat, lng} = location;
   const marker = L.marker(
@@ -128,5 +138,6 @@ advertisements.forEach((advertisement) => {
   marker
     .addTo(map)
     .bindPopup(createAdvertisementPopup(advertisement));
-});
+};
 
+export {createAdvertisementMarker, mainPinMarker, map, address, activateForm, DEFAULT_COORDINATES};
