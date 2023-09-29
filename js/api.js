@@ -1,5 +1,6 @@
 import {isEscapeKey} from './util.js';
 import {activateFilters} from './user-form.js';
+import {ErrorText} from './const.js';
 
 const BASE_URL = 'https://28.javascript.pages.academy/keksobooking';
 const Route = {
@@ -8,19 +9,11 @@ const Route = {
 };
 
 const errorTemplate = document.querySelector('#error').content.querySelector('.error');
-const errorFragment = document.createDocumentFragment();
 const successTemplate = document.querySelector('#success').content.querySelector('.success');
-
-const errorButton = document.querySelector('.error__button');
-const ALERT_SHOW_TIME = 800;
 
 const showSuccessMessage = () => {
   const success = successTemplate.cloneNode(true);
   document.body.appendChild(success);
-
-  setTimeout(() => {
-    success.remove();
-  }, ALERT_SHOW_TIME);
 
   document.addEventListener('click', () => {
     success.classList.add('hidden');
@@ -33,9 +26,13 @@ const showSuccessMessage = () => {
   });
 };
 
-const showErrorMessage = () => {
+const showErrorMessage = (errorText) => {
   const error = errorTemplate.cloneNode(true);
-  document.body.appendChild(errorFragment);
+  document.body.appendChild(error);
+  const errorButton = document.querySelector('.error__button');
+  const errorMessage = document.querySelector('.error__message');
+
+  errorMessage.textContent = errorText;
 
   errorButton.addEventListener('click', () => {
     error.classList.add('hidden');
@@ -64,9 +61,8 @@ const getData = () => fetch(
     return response.json();
   })
   .catch(() => {
-    throw new Error('Не удалось загрузить данные'); // какое сообщение? придумать текст и стили?
+    throw new Error();
   });
-
 
 // ------- Отправка данных -------
 
@@ -83,7 +79,7 @@ const sendData = (body) => fetch(
     showSuccessMessage();
   })
   .catch(() => {
-    showErrorMessage();
+    showErrorMessage(ErrorText.Send);
   });
 
 export {getData, sendData, showSuccessMessage, showErrorMessage};

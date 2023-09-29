@@ -1,7 +1,9 @@
+const DEFAULT_COORDINATES = '35.6895, 139.692';
+
 const advertisementForm = document.querySelector('.ad-form');
 const formElements = advertisementForm.children;
 
-const offerTypes = {
+const OfferType = {
   flat: 'Квартира',
   bungalow: 'Бунгало',
   house: 'Дом',
@@ -54,7 +56,7 @@ mainPinMarker.addTo(map);
 
 const address = advertisementForm.querySelector('[name="address"]');
 
-address.value = '35.6895, 139.692';
+address.value = DEFAULT_COORDINATES;
 
 mainPinMarker.on('moveend', (evt) => {
   address.value = `${(evt.target.getLatLng().lat).toFixed(5)}, ${(evt.target.getLatLng().lng).toFixed(5)}`;
@@ -84,7 +86,7 @@ const createAdvertisementPopup = (advertisement) => {
     popup.querySelector('.popup__text--price').textContent = `${advertisement.offer.price} ₽/ночь`;
   }
   if (advertisement.offer.type) {
-    popup.querySelector('.popup__type').textContent = offerTypes[advertisement.offer.type];
+    popup.querySelector('.popup__type').textContent = OfferType[advertisement.offer.type];
   }
   if (advertisement.offer.rooms && advertisement.offer.guests) {
     popup.querySelector('.popup__text--capacity').textContent = `${advertisement.offer.rooms} комнаты для ${advertisement.offer.guests} гостей`;
@@ -138,4 +140,4 @@ const createAdvertisementMarker = (advertisement) => {
     .bindPopup(createAdvertisementPopup(advertisement));
 };
 
-export {createAdvertisementMarker, mainPinMarker, map, address, activateForm};
+export {createAdvertisementMarker, mainPinMarker, map, address, activateForm, DEFAULT_COORDINATES};

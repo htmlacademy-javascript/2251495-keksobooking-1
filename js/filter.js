@@ -1,4 +1,5 @@
-import { map, createAdvertisementMarker } from './map.js';
+import {map, createAdvertisementMarker} from './map.js';
+import {debounce} from './util.js';
 
 // Фильтрация для объявлений
 
@@ -52,26 +53,28 @@ const onFilterChange = (advertisements) => {
   const filterElements = document.querySelectorAll('.map__filter');
   const filters = [...featuresElements, ...filterElements];
 
-  for (let i = 0; i < filters.length; i++) {
-    filters[i].addEventListener('change', () => {
-      let layerIndex = 0;
-      map.eachLayer((layer) => {
-        if (layerIndex < 2) {
-          layerIndex += 1;
-          return;
-        }
-
+  const filterChangeHandler = debounce(() => {
+    let layerIndex = 0;
+    map.eachLayer((layer) => {
+      if (layerIndex < 2) {
         layerIndex += 1;
-        layer.remove();
-      });
-      map.closePopup();
+        return;
+      }
 
-      advertisements
-        .filter(filterMapFilters)
-        .slice(0, 9)
-        .forEach((advertisement) => createAdvertisementMarker(advertisement));
+      layerIndex += 1;
+      layer.remove();
     });
+    map.closePopup();
+
+    advertisements
+      .filter(filterMapFilters)
+      .slice(0, 9)
+      .forEach((advertisement) => createAdvertisementMarker(advertisement));
+  });
+
+  for (let i = 0; i < filters.length; i++) {
+    filters[i].addEventListener('change', filterChangeHandler);
   }
 };
 
-export { filterMapFilters, onFilterChange };
+export {filterMapFilters, onFilterChange};

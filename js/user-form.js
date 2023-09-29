@@ -1,5 +1,13 @@
-import {sendData, showSuccessMessage, showErrorMessage} from './api.js';
-import {mainPinMarker, map, address} from './map.js';
+import {sendData, showErrorMessage} from './api.js';
+import {mainPinMarker, map, address, DEFAULT_COORDINATES} from './map.js';
+import {ErrorText} from './const.js';
+
+const QuantityValue = {
+  MIN_QUANTITY_SYMBOLS: 30,
+  MAX_QUANTITY_SYMBOLS: 100,
+  MAX_PRICE: 100000,
+  MIN_PRICE: 0
+};
 
 const advertisementForm = document.querySelector('.ad-form');
 const formElements = advertisementForm.children;
@@ -7,7 +15,7 @@ const mapForm = document.querySelector('.map__filters');
 const mapFilters = mapForm.children;
 const submitButton = document.querySelector('.ad-form__submit');
 
-// Активация фильтров
+// ------- Активация фильтров -------
 
 const activateFilters = () => {
   mapForm.classList.remove('map__filters--disabled');
@@ -51,31 +59,31 @@ const pristine = new Pristine(advertisementForm,
 // Валидация заголовка
 
 function validateTitle (value) {
-  return value.length >= 30 && value.length <= 100;
+  return value.length >= QuantityValue.MIN_QUANTITY_SYMBOLS && value.length <= QuantityValue.MAX_QUANTITY_SYMBOLS;
 }
 
 pristine.addValidator(
   advertisementForm.querySelector('#title'),
   validateTitle,
-  'От 30 до 100 символов'
+  `От ${QuantityValue.MIN_QUANTITY_SYMBOLS} до ${QuantityValue.MAX_QUANTITY_SYMBOLS} символов`
 );
 
 // Валидация цены
 
 function validatePrice (value) {
-  return Number(value) <= 100000;
+  return Number(value) <= QuantityValue.MAX_PRICE;
 }
 
 pristine.addValidator(
   advertisementForm.querySelector('#price'),
   validatePrice,
-  'Максимальная цена — 100000'
+  `Максимальная цена — ${QuantityValue.MAX_PRICE}`
 );
 
 // Валидация количества комнат и количества мест
 
-const rooms = advertisementForm.querySelector('[name="rooms"]:checked');
-const capacity = advertisementForm.querySelector('[name="capacity"]:checked');
+const rooms = advertisementForm.querySelector('#room_number');
+const capacity = advertisementForm.querySelector('#capacity');
 
 const quantityRoomsForGuests = {
   '1': '1',
@@ -100,9 +108,10 @@ pristine.addValidator(rooms, validateCapacity, getCapacityErrorMessage);
 // Тип жилья
 
 const price = advertisementForm.querySelector('#price');
-let type;
+const houseType = advertisementForm.querySelector('#type');
+let type = houseType.value;
 
-const minPrice = {
+const MinPrice = {
   'bungalow': 0,
   'flat': 1000,
   'hotel': 3000,
@@ -111,11 +120,11 @@ const minPrice = {
 };
 
 function validateMinPrice (value) {
-  return Number(value) >= minPrice[type];
+  return Number(value) >= MinPrice[houseType.value];
 }
 
 function getPriceErrorMessage () {
-  return `минимальная цена за ночь ${minPrice[type]}`;
+  return `минимальная цена за ночь ${MinPrice[type]}`;
 }
 
 pristine.addValidator(price, validateMinPrice, getPriceErrorMessage);
@@ -126,8 +135,8 @@ const priceSlider = document.querySelector('.ad-form__slider');
 
 noUiSlider.create(priceSlider, {
   range: {
-    min: 0,
-    max: 100000,
+    min: QuantityValue.MIN_PRICE,
+    max: QuantityValue.MAX_PRICE,
   },
   start: 0,
   step: 1,
@@ -139,13 +148,13 @@ priceSlider.noUiSlider.on('update', () => {
 });
 
 function onTypeChange (evt) {
-  price.placeholder = minPrice[evt.target.value];
+  price.placeholder = MinPrice[evt.target.value];
   type = evt.target.value;
   pristine.validate(price);
   priceSlider.noUiSlider.updateOptions({
     range: {
-      min: minPrice[type],
-      max: 100000,
+      min: MinPrice[type],
+      max: QuantityValue.MAX_PRICE,
     }
   });
 }
@@ -172,7 +181,7 @@ function getTimeErrorMessage() {
 pristine.addValidator(timein, validateTimeIn, getTimeErrorMessage);
 pristine.addValidator(timeout, validateTimeout, getTimeErrorMessage);
 
-// Очистка формы после отправки
+// ------- Очистка формы после отправки -------
 
 const clearFormFields = () => {
   const selectElements = document.querySelectorAll('select');
@@ -210,9 +219,7 @@ const clearFormFields = () => {
 
   map.closePopup();
 
-  address.value = '35.6895, 139.692';
-
-  showSuccessMessage();
+  address.value = DEFAULT_COORDINATES;
 };
 
 const resetButton = document.querySelector('.ad-form__reset');
@@ -226,7 +233,7 @@ const unblockSubmitButton = () => {
   submitButton.disabled = false;
 };
 
-// Валидация перед отправкой формы
+// ------- Валидация перед отправкой формы -------
 
 const setUserFormSubmit = (onSuccess) => {
   advertisementForm.addEventListener('submit', (evt) => {
@@ -237,8 +244,8 @@ const setUserFormSubmit = (onSuccess) => {
       const formData = new FormData(evt.target);
       sendData(formData)
         .then(onSuccess)
-        .catch((err) => {
-          showErrorMessage(err.message);
+        .catch(() => {
+          showErrorMessage(ErrorText.Send);
         })
         .finally(unblockSubmitButton);
     }
@@ -246,4 +253,3 @@ const setUserFormSubmit = (onSuccess) => {
 };
 
 export {advertisementForm, formElements, mapForm, mapFilters, activateFilters, setUserFormSubmit, clearFormFields};
-
