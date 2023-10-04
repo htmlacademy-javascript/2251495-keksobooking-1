@@ -15,16 +15,24 @@ const showSuccessMessage = () => {
   const success = successTemplate.cloneNode(true);
   document.body.appendChild(success);
 
-  document.addEventListener('click', () => {
+  const onSuccessMessageClick = () => {
     success.classList.add('hidden');
-  });
+    document.removeEventListener('click', onSuccessMessageClick);
+  };
 
-  document.addEventListener('keydown', (evt) => {
+  document.addEventListener('click', onSuccessMessageClick);
+
+
+  const onSuccessMessageKeydown = (evt) => {
     if (isEscapeKey(evt)) {
       success.classList.add('hidden');
+      document.removeEventListener('keydown', onSuccessMessageKeydown);
     }
-  });
+
+  };
+  document.addEventListener('keydown', onSuccessMessageKeydown);
 };
+
 
 const showErrorMessage = (errorText) => {
   const error = errorTemplate.cloneNode(true);
@@ -38,15 +46,21 @@ const showErrorMessage = (errorText) => {
     error.classList.add('hidden');
   });
 
-  document.addEventListener('click', () => {
+  const onErrorMessageClick = () => {
     error.classList.add('hidden');
-  });
+    document.removeEventListener('click', onErrorMessageClick);
+  };
 
-  document.addEventListener('keydown', (evt) => {
+  document.addEventListener('click', onErrorMessageClick);
+
+  const onErrorMessageKeydown = (evt) => {
     if (isEscapeKey(evt)) {
       error.classList.add('hidden');
+      document.removeEventListener('keydown', onErrorMessageKeydown);
     }
-  });
+  };
+
+  document.addEventListener('keydown', onErrorMessageKeydown);
 };
 
 // ------- Получение данных -------
@@ -66,7 +80,7 @@ const getData = () => fetch(
 
 // ------- Отправка данных -------
 
-const sendData = (body) => fetch(
+const sendData = (body, onSuccess) => fetch(
   `${BASE_URL}${Route.SEND_DATA}`,
   {
     method: 'POST',
@@ -77,6 +91,7 @@ const sendData = (body) => fetch(
       throw new Error();
     }
     showSuccessMessage();
+    onSuccess();
   })
   .catch(() => {
     showErrorMessage(ErrorText.Send);
