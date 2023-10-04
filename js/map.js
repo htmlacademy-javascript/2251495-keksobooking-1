@@ -186,5 +186,4 @@ const clearMap = () => {
   mapCanvas.closePopup();
 };
 
-
 export {createAdvertisementMarker, loadMap, address, activateForm, DefaultCoordinates, mapCanvas, clearMap};
