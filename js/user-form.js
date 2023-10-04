@@ -1,5 +1,5 @@
 import {sendData, showErrorMessage} from './api.js';
-import {address, defaultCoordinates, mapCanvas} from './map.js';
+import {address, DefaultCoordinates, mapCanvas} from './map.js';
 import {ErrorText} from './const.js';
 import {photoPreview, imagePreview} from './pictures.js';
 import{filterElements, featuresElements} from './filter.js';
@@ -29,8 +29,8 @@ const submitButton = document.querySelector('.ad-form__submit');
 
 const mainPinMarkerlatLng =
   {
-    lat: defaultCoordinates.LAT,
-    lng: defaultCoordinates.LNG,
+    lat: DefaultCoordinates.LAT,
+    lng: DefaultCoordinates.LNG,
   };
 
 const timein = advertisementForm.querySelector('#timein');
@@ -213,7 +213,7 @@ const onFormReset = (evt) => {
 
   advertisementForm.reset();
 
-  address.value = `${defaultCoordinates.LAT}, ${defaultCoordinates.LNG}`;
+  address.value = `${DefaultCoordinates.LAT}, ${DefaultCoordinates.LNG}`;
 
   document.querySelector(photoPreview).src = DEFAULT_PREVIEW;
   document.querySelector(imagePreview).src = null;

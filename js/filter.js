@@ -6,7 +6,7 @@ const housingType = document.querySelector('#housing-type');
 const housingRooms = document.querySelector('#housing-rooms');
 const housingGuests = document.querySelector('#housing-guests');
 
-const filterPrice = {
+const FilterPriceRange = {
   LOW: 10000,
   HIGH: 50000
 };
@@ -21,15 +21,15 @@ const verifyPrice = (advertisement) => {
   }
 
   if (housingPrice === 'low') {
-    return advertisement.offer.price < filterPrice.LOW;
+    return advertisement.offer.price < FilterPriceRange.LOW;
   }
 
   if (housingPrice === 'middle') {
-    return advertisement.offer.price > filterPrice.LOW && advertisement.offer.price <= filterPrice.HIGH;
+    return advertisement.offer.price > FilterPriceRange.LOW && advertisement.offer.price <= FilterPriceRange.HIGH;
   }
 
   if (housingPrice === 'high') {
-    return advertisement.offer.price > filterPrice.HIGH;
+    return advertisement.offer.price > FilterPriceRange.HIGH;
   }
 };
 

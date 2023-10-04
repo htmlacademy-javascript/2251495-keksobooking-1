@@ -1,4 +1,4 @@
-const defaultCoordinates = {
+const DefaultCoordinates = {
   LAT: 35.68948,
   LNG: 139.69170
 };
@@ -29,7 +29,7 @@ const activateForm = () => {
 
 const address = advertisementForm.querySelector('[name="address"]');
 
-address.value = `${defaultCoordinates.LAT}, ${defaultCoordinates.LNG}`;
+address.value = `${DefaultCoordinates.LAT}, ${DefaultCoordinates.LNG}`;
 
 const icon = L.icon({
   iconUrl: './img/pin.svg',
@@ -124,8 +124,8 @@ const loadMap = () => new Promise((resolve) => {
 
       const mainPinMarker = L.marker(
         {
-          lat: defaultCoordinates.LAT,
-          lng: defaultCoordinates.LNG,
+          lat: DefaultCoordinates.LAT,
+          lng: DefaultCoordinates.LNG,
         },
         {
           draggable: true,
@@ -140,8 +140,8 @@ const loadMap = () => new Promise((resolve) => {
       mainPinMarker.addTo(e.target);
       resolve(e.target);
     }).setView({
-      lat: defaultCoordinates.LAT,
-      lng: defaultCoordinates.LNG,
+      lat: DefaultCoordinates.LAT,
+      lng: DefaultCoordinates.LNG,
     }, MAP_ZOOM);
 
   L.tileLayer(
@@ -187,4 +187,4 @@ const clearMap = () => {
 };
 
 
-export {createAdvertisementMarker, loadMap, address, activateForm, defaultCoordinates, mapCanvas, clearMap};
+export {createAdvertisementMarker, loadMap, address, activateForm, DefaultCoordinates, mapCanvas, clearMap};
