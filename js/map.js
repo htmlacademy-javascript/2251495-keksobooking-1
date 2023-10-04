@@ -1,7 +1,13 @@
-const DEFAULT_COORDINATES = '35.6895, 139.692';
+const defaultCoordinates = {
+  LAT: 35.68948,
+  LNG: 139.69170
+};
+
+const MAP_ZOOM = 10;
 
 const advertisementForm = document.querySelector('.ad-form');
-const formElements = advertisementForm.children;
+const formElements = advertisementForm.querySelectorAll('fieldset');
+const cardTemplate = document.querySelector('#card').content.querySelector('.popup');
 
 const OfferType = {
   flat: 'Квартира',
@@ -14,53 +20,16 @@ const OfferType = {
 const activateForm = () => {
   advertisementForm.classList.remove('ad-form--disabled');
 
-  for (let i = 0; i < formElements.length; i++) {
-    formElements[i].removeAttribute('disabled');
+  formElements.forEach((formElement) => {
+    formElement.removeAttribute('disabled');
   }
+  );
 };
 
-const map = L.map('map-canvas')
-  .on('load', () => {
-    activateForm();
-  }).setView({
-    lat: 35.6895,
-    lng: 139.692,
-  }, 10);
-
-L.tileLayer(
-  'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-  {
-    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-  },
-).addTo(map);
-
-const mainPinIcon = L.icon({
-  iconUrl: './img/main-pin.svg',
-  iconSize: [52, 52],
-  iconAnchor: [26, 52],
-});
-
-
-const mainPinMarker = L.marker(
-  {
-    lat: 35.6895,
-    lng: 139.692,
-  },
-  {
-    draggable: true,
-    icon: mainPinIcon,
-  },
-);
-
-mainPinMarker.addTo(map);
 
 const address = advertisementForm.querySelector('[name="address"]');
 
-address.value = DEFAULT_COORDINATES;
-
-mainPinMarker.on('moveend', (evt) => {
-  address.value = `${(evt.target.getLatLng().lat).toFixed(5)}, ${(evt.target.getLatLng().lng).toFixed(5)}`;
-});
+address.value = `${defaultCoordinates.LAT}, ${defaultCoordinates.LNG}`;
 
 const icon = L.icon({
   iconUrl: './img/pin.svg',
@@ -68,32 +37,7 @@ const icon = L.icon({
   iconAnchor: [20, 40],
 });
 
-const cardTemplate = document.querySelector('#card').content.querySelector('.popup');
-
-const createAdvertisementPopup = (advertisement) => {
-
-  const popupFragment = document.createDocumentFragment();
-
-  const popup = cardTemplate.cloneNode(true);
-
-  if (advertisement.offer.title) {
-    popup.querySelector('.popup__title').textContent = advertisement.offer.title;
-  }
-  if (advertisement.offer.address) {
-    popup.querySelector('.popup__text--address').textContent = advertisement.offer.address;
-  }
-  if (advertisement.offer.price) {
-    popup.querySelector('.popup__text--price').textContent = `${advertisement.offer.price} ₽/ночь`;
-  }
-  if (advertisement.offer.type) {
-    popup.querySelector('.popup__type').textContent = OfferType[advertisement.offer.type];
-  }
-  if (advertisement.offer.rooms && advertisement.offer.guests) {
-    popup.querySelector('.popup__text--capacity').textContent = `${advertisement.offer.rooms} комнаты для ${advertisement.offer.guests} гостей`;
-  }
-  if (advertisement.offer.checkin && advertisement.offer.checkout) {
-    popup.querySelector('.popup__text--time').textContent = `Заезд после ${advertisement.offer.checkin}, выезд до ${advertisement.offer.checkout}`;
-  }
+const renderAdvertisementsFeatures = (advertisement, popup) => {
   if (advertisement.offer.features) {
     advertisement.offer.features.forEach((feature) => {
       const li = document.createElement('li');
@@ -102,27 +46,113 @@ const createAdvertisementPopup = (advertisement) => {
       popup.querySelector('.popup__features').appendChild(li);
     });
   }
-  if (advertisement.offer.description) {
-    popup.querySelector('.popup__description').textContent = advertisement.offer.description;
-  }
+};
+
+const renderAdvertisementsPhotos = (advertisement, popup) => {
   if (advertisement.offer.photos) {
-    for (let i = 0; i < advertisement.offer.photos.length; i++) {
+    advertisement.offer.photos.forEach((photo) => {
       const img = document.createElement('img');
-      img.setAttribute('src', advertisement.offer.photos[i]);
-      img.setAttribute('width', '45');
-      img.setAttribute('height', '40');
+      img.src = photo;
+      img.width = '45';
+      img.height = '40';
       img.classList.add('popup__photo');
       popup.querySelector('.popup__photos').appendChild(img);
-    }
+    });
   }
-  popup.querySelector('.popup__avatar').setAttribute('src', advertisement.author.avatar);
+};
+
+const createAdvertisementPopup = (advertisement) => {
+
+  const popupFragment = document.createDocumentFragment();
+
+  const popup = cardTemplate.cloneNode(true);
+
+  const appendAdvertisementInfo = (
+    selector,
+    condition,
+    text
+  ) => {
+    if (condition) {
+      popup.querySelector(selector).textContent = text;
+    }
+
+  };
+
+  appendAdvertisementInfo('.popup__title', advertisement.offer.title, advertisement.offer.title);
+  appendAdvertisementInfo('.popup__text--address', advertisement.offer.address, advertisement.offer.addresse);
+  appendAdvertisementInfo('.popup__text--price', advertisement.offer.price, `${advertisement.offer.price} ₽/ночь`);
+  appendAdvertisementInfo('.popup__type', advertisement.offer.type, OfferType[advertisement.offer.type]);
+  appendAdvertisementInfo(
+    '.popup__text--capacity',
+    advertisement.offer.rooms && advertisement.offer.guests,
+    `${advertisement.offer.rooms} комнаты для ${advertisement.offer.guests} гостей`
+  );
+  appendAdvertisementInfo(
+    '.popup__text--time',
+    advertisement.offer.checkin && advertisement.offer.checkout,
+    `Заезд после ${advertisement.offer.checkin}, выезд до ${advertisement.offer.checkout}`
+  );
+
+  renderAdvertisementsFeatures(advertisement, popup);
+
+  appendAdvertisementInfo('.popup__description', advertisement.offer.description,advertisement.offer.description);
+
+  renderAdvertisementsPhotos(advertisement, popup);
+
+  popup.querySelector('.popup__avatar').src = advertisement.author.avatar;
 
   cardTemplate.appendChild(popupFragment);
 
   return popup;
 };
 
-const createAdvertisementMarker = (advertisement) => {
+let mapCanvas;
+
+L.Map.addInitHook(function () {
+  mapCanvas = this;
+});
+
+const loadMap = () => new Promise((resolve) => {
+  const map = L.map('map-canvas')
+    .on('load', (e) => {
+      activateForm();
+      const mainPinIcon = L.icon({
+        iconUrl: './img/main-pin.svg',
+        iconSize: [52, 52],
+        iconAnchor: [26, 52],
+      });
+
+      const mainPinMarker = L.marker(
+        {
+          lat: defaultCoordinates.LAT,
+          lng: defaultCoordinates.LNG,
+        },
+        {
+          draggable: true,
+          icon: mainPinIcon,
+        },
+      );
+
+      mainPinMarker.on('moveend', (evt) => {
+        address.value = `${(evt.target.getLatLng().lat).toFixed(5)}, ${(evt.target.getLatLng().lng).toFixed(5)}`;
+      });
+
+      mainPinMarker.addTo(e.target);
+      resolve(e.target);
+    }).setView({
+      lat: defaultCoordinates.LAT,
+      lng: defaultCoordinates.LNG,
+    }, MAP_ZOOM);
+
+  L.tileLayer(
+    'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+    {
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+    },
+  ).addTo(map);
+});
+
+const createAdvertisementMarker = (advertisement, map) => {
   const {location} = advertisement;
   const {lat, lng} = location;
   const marker = L.marker(
@@ -140,4 +170,21 @@ const createAdvertisementMarker = (advertisement) => {
     .bindPopup(createAdvertisementPopup(advertisement));
 };
 
-export {createAdvertisementMarker, mainPinMarker, map, address, activateForm, DEFAULT_COORDINATES};
+const clearMap = () => {
+  let layerIndex = 0;
+
+  mapCanvas.eachLayer((layer) => {
+    if (layerIndex < 2) {
+      layerIndex += 1;
+      return;
+    }
+
+    layerIndex += 1;
+    layer.remove();
+  });
+
+  mapCanvas.closePopup();
+};
+
+
+export {createAdvertisementMarker, loadMap, address, activateForm, defaultCoordinates, mapCanvas, clearMap};

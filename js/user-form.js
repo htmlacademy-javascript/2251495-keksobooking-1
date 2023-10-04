@@ -1,6 +1,8 @@
 import {sendData, showErrorMessage} from './api.js';
-import {mainPinMarker, map, address, DEFAULT_COORDINATES} from './map.js';
+import {address, defaultCoordinates, mapCanvas} from './map.js';
 import {ErrorText} from './const.js';
+import {photoPreview, imagePreview} from './pictures.js';
+import{filterElements, featuresElements} from './filter.js';
 
 const QuantityValue = {
   MIN_QUANTITY_SYMBOLS: 30,
@@ -9,20 +11,41 @@ const QuantityValue = {
   MIN_PRICE: 0
 };
 
+const MinPrice = {
+  'bungalow': 0,
+  'flat': 1000,
+  'hotel': 3000,
+  'house': 5000,
+  'palace': 10000
+};
+
+const DEFAULT_PREVIEW = 'img/muffin-grey.svg';
+
 const advertisementForm = document.querySelector('.ad-form');
-const formElements = advertisementForm.children;
+const formElements = advertisementForm.querySelectorAll('fieldset');
 const mapForm = document.querySelector('.map__filters');
-const mapFilters = mapForm.children;
+const mapFilters = mapForm.querySelectorAll('select, fieldset');
 const submitButton = document.querySelector('.ad-form__submit');
+
+const mainPinMarkerlatLng =
+  {
+    lat: defaultCoordinates.LAT,
+    lng: defaultCoordinates.LNG,
+  };
+
+const timein = advertisementForm.querySelector('#timein');
+const timeout = advertisementForm.querySelector('#timeout');
+
+const resetButton = document.querySelector('.ad-form__reset');
 
 // ------- Активация фильтров -------
 
 const activateFilters = () => {
   mapForm.classList.remove('map__filters--disabled');
 
-  for (let i = 0; i < mapFilters.length; i++) {
-    mapFilters[i].removeAttribute('disabled');
-  }
+  mapFilters.forEach((mapFilter)=> {
+    mapFilter.removeAttribute('disabled');
+  });
 };
 
 // ------- Дезактивация формы -------
@@ -31,15 +54,14 @@ const disableForm = () => {
 
   advertisementForm.classList.add('ad-form--disabled');
 
-  for (let i = 0; i < formElements.length; i++) {
-    formElements[i].setAttribute('disabled', true);
-  }
+  const formControls = [...formElements, ...mapFilters];
+
+  formControls.forEach ((formControl) => {
+    formControl.disabled = true;
+  });
 
   mapForm.classList.add('map__filters--disabled');
 
-  for (let i = 0; i < mapFilters.length; i++) {
-    mapFilters[i].setAttribute('disabled', true);
-  }
 };
 
 disableForm();
@@ -58,9 +80,7 @@ const pristine = new Pristine(advertisementForm,
 
 // Валидация заголовка
 
-function validateTitle (value) {
-  return value.length >= QuantityValue.MIN_QUANTITY_SYMBOLS && value.length <= QuantityValue.MAX_QUANTITY_SYMBOLS;
-}
+const validateTitle = (value) => value.length >= QuantityValue.MIN_QUANTITY_SYMBOLS && value.length <= QuantityValue.MAX_QUANTITY_SYMBOLS;
 
 pristine.addValidator(
   advertisementForm.querySelector('#title'),
@@ -70,9 +90,7 @@ pristine.addValidator(
 
 // Валидация цены
 
-function validatePrice (value) {
-  return Number(value) <= QuantityValue.MAX_PRICE;
-}
+const validatePrice = (value) => Number(value) <= QuantityValue.MAX_PRICE;
 
 pristine.addValidator(
   advertisementForm.querySelector('#price'),
@@ -92,13 +110,9 @@ const quantityRoomsForGuests = {
   '100': '0'
 };
 
-function validateCapacity () {
-  return quantityRoomsForGuests[rooms.value].includes(capacity.value);
-}
+const validateCapacity = () => quantityRoomsForGuests[rooms.value].includes(capacity.value);
 
-function getCapacityErrorMessage () {
-  return 'количество мест не соответствует количеству комнат';
-}
+const getCapacityErrorMessage = () => 'количество мест не соответствует количеству комнат';
 
 pristine.addValidator(capacity, validateCapacity, getCapacityErrorMessage);
 pristine.addValidator(rooms, validateCapacity, getCapacityErrorMessage);
@@ -111,21 +125,9 @@ const price = advertisementForm.querySelector('#price');
 const houseType = advertisementForm.querySelector('#type');
 let type = houseType.value;
 
-const MinPrice = {
-  'bungalow': 0,
-  'flat': 1000,
-  'hotel': 3000,
-  'house': 5000,
-  'palace': 10000
-};
+const validateMinPrice = (value) => Number(value) >= MinPrice[houseType.value];
 
-function validateMinPrice (value) {
-  return Number(value) >= MinPrice[houseType.value];
-}
-
-function getPriceErrorMessage () {
-  return `минимальная цена за ночь ${MinPrice[type]}`;
-}
+const getPriceErrorMessage = () => `минимальная цена за ночь ${MinPrice[type]}`;
 
 pristine.addValidator(price, validateMinPrice, getPriceErrorMessage);
 
@@ -147,8 +149,9 @@ priceSlider.noUiSlider.on('update', () => {
   price.value = priceSlider.noUiSlider.get();
 });
 
-function onTypeChange (evt) {
+const onTypeChange = (evt) => {
   price.placeholder = MinPrice[evt.target.value];
+
   type = evt.target.value;
   pristine.validate(price);
   priceSlider.noUiSlider.updateOptions({
@@ -157,73 +160,68 @@ function onTypeChange (evt) {
       max: QuantityValue.MAX_PRICE,
     }
   });
-}
+};
 
 advertisementForm.querySelectorAll('[name="type"]').forEach((item) => item.addEventListener('change', onTypeChange));
 
 // Время заезда/выезда
 
-const timein = advertisementForm.querySelector('#timein');
-const timeout = advertisementForm.querySelector('#timeout');
+const validateTimeIn = (value) => value === timeout.value;
 
-function validateTimeIn (value) {
-  return value === timeout.value;
-}
+const validateTimeout = (value) => value === timein.value;
 
-function validateTimeout(value) {
-  return value === timein.value;
-}
-
-function getTimeErrorMessage() {
-  return 'Время заезда должно совпадать с временем выезда';
-}
+const getTimeErrorMessage = () => 'Время заезда должно совпадать с временем выезда';
 
 pristine.addValidator(timein, validateTimeIn, getTimeErrorMessage);
 pristine.addValidator(timeout, validateTimeout, getTimeErrorMessage);
 
+timein.addEventListener('change', (evt) => {
+  timeout.value = evt.target.value;
+});
+
+timeout.addEventListener('change', (evt) => {
+  timein.value = evt.target.value;
+});
 // ------- Очистка формы после отправки -------
 
-const clearFormFields = () => {
-  const selectElements = document.querySelectorAll('select');
-  const textareaElement = document.querySelector('#description');
-  const inputTextElements = document.querySelectorAll('input[type="text"]');
-  const inputCheckboxElements = document.querySelectorAll('input[type="checkbox"]');
-  const inputFileElements = document.querySelectorAll('input[type="file"]');
-  const mainPinMarkerlatLng =
-  {
-    lat: 35.6895,
-    lng: 139.692,
-  };
-
-  for (let i = 0; i < selectElements.length; i++) {
-    selectElements[i].selectedIndex = 0;
-  }
-
-  textareaElement.value = '';
-
-  for (let i = 0; i < inputTextElements.length; i++) {
-    inputTextElements[i].value = '';
-  }
-
-  for (let i = 0; i < inputCheckboxElements.length; i++) {
-    inputCheckboxElements[i].checked = false;
-  }
-
-  for (let i = 0; i < inputFileElements.length; i++) {
-    inputFileElements[i].value = '';
-  }
+const onFormReset = (evt) => {
+  evt?.preventDefault();
 
   priceSlider.noUiSlider.reset();
 
-  mainPinMarker.setLatLng(mainPinMarkerlatLng);
+  let layerIndex = 0;
+  mapCanvas.eachLayer((layer) => {
 
-  map.closePopup();
+    if (layerIndex < 1) {
+      layer.setLatLng(mainPinMarkerlatLng);
+      layerIndex += 1;
+    }
 
-  address.value = DEFAULT_COORDINATES;
+  });
+
+  mapCanvas.closePopup();
+
+  pristine.reset();
+
+  featuresElements.forEach((featuresElement) => {
+    featuresElement.checked = false;
+  });
+
+  filterElements.forEach((filterElement) => {
+    filterElement.selectedIndex = 0;
+  });
+
+  advertisementForm.reset();
+
+  address.value = `${defaultCoordinates.LAT}, ${defaultCoordinates.LNG}`;
+
+  document.querySelector(photoPreview).src = DEFAULT_PREVIEW;
+  document.querySelector(imagePreview).src = null;
+
+  price.placeholder = MinPrice.flat;
 };
 
-const resetButton = document.querySelector('.ad-form__reset');
-resetButton.addEventListener('click', clearFormFields);
+resetButton.addEventListener('click', onFormReset);
 
 const blockSubmitButton = () => {
   submitButton.disabled = true;
@@ -242,14 +240,14 @@ const setUserFormSubmit = (onSuccess) => {
     if (isValid) {
       blockSubmitButton();
       const formData = new FormData(evt.target);
-      sendData(formData)
-        .then(onSuccess)
+      sendData(formData, onSuccess)
         .catch(() => {
           showErrorMessage(ErrorText.Send);
+
         })
         .finally(unblockSubmitButton);
     }
   });
 };
 
-export {advertisementForm, formElements, mapForm, mapFilters, activateFilters, setUserFormSubmit, clearFormFields};
+export {advertisementForm, formElements, mapForm, mapFilters, activateFilters, setUserFormSubmit, onFormReset};

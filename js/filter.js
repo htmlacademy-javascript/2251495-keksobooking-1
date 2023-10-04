@@ -1,5 +1,15 @@
-import {map, createAdvertisementMarker} from './map.js';
+import {createAdvertisementMarker, mapCanvas, clearMap} from './map.js';
 import {debounce} from './util.js';
+import { advertisementForm } from './user-form.js';
+
+const housingType = document.querySelector('#housing-type');
+const housingRooms = document.querySelector('#housing-rooms');
+const housingGuests = document.querySelector('#housing-guests');
+
+const filterPrice = {
+  LOW: 10000,
+  HIGH: 50000
+};
 
 // Фильтрация для объявлений
 
@@ -11,22 +21,20 @@ const verifyPrice = (advertisement) => {
   }
 
   if (housingPrice === 'low') {
-    return advertisement.offer.price < 10000;
+    return advertisement.offer.price < filterPrice.LOW;
   }
 
   if (housingPrice === 'middle') {
-    return advertisement.offer.price > 10000 && advertisement.offer.price <= 50000;
+    return advertisement.offer.price > filterPrice.LOW && advertisement.offer.price <= filterPrice.HIGH;
   }
 
   if (housingPrice === 'high') {
-    return advertisement.offer.price > 50000;
+    return advertisement.offer.price > filterPrice.HIGH;
   }
 };
 
+
 const filterMapFilters = (advertisement) => {
-  const housingType = document.querySelector('#housing-type');
-  const housingRooms = document.querySelector('#housing-rooms');
-  const housingGuests = document.querySelector('#housing-guests');
   const housingFeatures = document.querySelectorAll('.map__checkbox:checked');
 
   const isHousingTypeMatches = housingType.value === 'any' || advertisement.offer.type === housingType.value;
@@ -41,40 +49,31 @@ const filterMapFilters = (advertisement) => {
     return false;
   });
 
-  if (isHousingTypeMatches && isRoomsMatches && isGuestsMatches && isFeaturesMatches && isPriceMatches) {
-    return true;
-  }
-
-  return false;
+  return isHousingTypeMatches && isRoomsMatches && isGuestsMatches && isFeaturesMatches && isPriceMatches;
 };
 
-const onFilterChange = (advertisements) => {
-  const featuresElements = document.querySelectorAll('.map__checkbox');
-  const filterElements = document.querySelectorAll('.map__filter');
+const featuresElements = document.querySelectorAll('.map__checkbox');
+const filterElements = document.querySelectorAll('.map__filter');
+
+const prepareFilterChangeHandlers = (advertisements) => {
+
   const filters = [...featuresElements, ...filterElements];
+  const FILTERED_OFFERS_QUANTITY = 10;
 
-  const filterChangeHandler = debounce(() => {
-    let layerIndex = 0;
-    map.eachLayer((layer) => {
-      if (layerIndex < 2) {
-        layerIndex += 1;
-        return;
-      }
+  const onFilterChange = debounce(() => {
 
-      layerIndex += 1;
-      layer.remove();
-    });
-    map.closePopup();
-
+    clearMap();
     advertisements
       .filter(filterMapFilters)
-      .slice(0, 9)
-      .forEach((advertisement) => createAdvertisementMarker(advertisement));
+      .slice(0, FILTERED_OFFERS_QUANTITY)
+      .forEach((advertisement) => createAdvertisementMarker(advertisement, mapCanvas));
   });
 
-  for (let i = 0; i < filters.length; i++) {
-    filters[i].addEventListener('change', filterChangeHandler);
-  }
+  filters.forEach((filter) => {
+    filter.addEventListener('change',onFilterChange);
+  });
+  advertisementForm.addEventListener('reset', onFilterChange);
+
 };
 
-export {filterMapFilters, onFilterChange};
+export {filterMapFilters, prepareFilterChangeHandlers, filterElements, featuresElements};
