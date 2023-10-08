@@ -1,5 +1,4 @@
 import {isEscapeKey} from './util.js';
-import {activateFilters} from './user-form.js';
 import {ErrorText} from './const.js';
 
 const BASE_URL = 'https://28.javascript.pages.academy/keksobooking';
@@ -71,7 +70,6 @@ const getData = () => fetch(
     if (!response.ok) {
       throw new Error();
     }
-    activateFilters();
     return response.json();
   })
   .catch(() => {
@@ -98,5 +96,3 @@ const sendData = (body, onSuccess) => fetch(
   });
 
 export {getData, sendData, showSuccessMessage, showErrorMessage};
-
-
