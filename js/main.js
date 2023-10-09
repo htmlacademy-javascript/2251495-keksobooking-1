@@ -11,9 +11,10 @@ const ADVERTISEMENTS_QUANTITY = 10;
 
 loadMap()
   .then((map) => {
+    activateForm();
     getData()
       .then((advertisements) => {
-        activateForm();
+
         advertisements
           .slice()
           .slice(0, ADVERTISEMENTS_QUANTITY)

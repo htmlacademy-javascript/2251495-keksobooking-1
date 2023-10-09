@@ -95,4 +95,4 @@ const sendData = (body, onSuccess) => fetch(
     showErrorMessage(ErrorText.Send);
   });
 
-export {getData, sendData, showSuccessMessage, showErrorMessage};
+export {getData, sendData, showErrorMessage};
