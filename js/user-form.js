@@ -154,12 +154,6 @@ const onTypeChange = (evt) => {
 
   type = evt.target.value;
   pristine.validate(price);
-  priceSlider.noUiSlider.updateOptions({
-    range: {
-      min: MinPrice[type],
-      max: QuantityValue.MAX_PRICE,
-    }
-  });
 };
 
 advertisementForm.querySelectorAll('[name="type"]').forEach((item) => item.addEventListener('change', onTypeChange));
