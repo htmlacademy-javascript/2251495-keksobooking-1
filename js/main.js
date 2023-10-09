@@ -14,7 +14,6 @@ loadMap()
     activateForm();
     getData()
       .then((advertisements) => {
-
         advertisements
           .slice()
           .slice(0, ADVERTISEMENTS_QUANTITY)

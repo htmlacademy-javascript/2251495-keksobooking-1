@@ -14,21 +14,22 @@ const showSuccessMessage = () => {
   const success = successTemplate.cloneNode(true);
   document.body.appendChild(success);
 
-  const onSuccessMessageClick = () => {
+  function onSuccessMessageClick() {
     success.classList.add('hidden');
     document.removeEventListener('click', onSuccessMessageClick);
-  };
+    document.removeEventListener('keydown', onSuccessMessageKeydown);
+  }
 
   document.addEventListener('click', onSuccessMessageClick);
 
 
-  const onSuccessMessageKeydown = (evt) => {
+  function onSuccessMessageKeydown(evt) {
     if (isEscapeKey(evt)) {
       success.classList.add('hidden');
+      document.removeEventListener('click', onSuccessMessageClick);
       document.removeEventListener('keydown', onSuccessMessageKeydown);
     }
-
-  };
+  }
   document.addEventListener('keydown', onSuccessMessageKeydown);
 };
 
@@ -45,19 +46,21 @@ const showErrorMessage = (errorText) => {
     error.classList.add('hidden');
   });
 
-  const onErrorMessageClick = () => {
+  function onErrorMessageClick() {
     error.classList.add('hidden');
     document.removeEventListener('click', onErrorMessageClick);
-  };
+    document.removeEventListener('keydown', onErrorMessageKeydown);
+  }
 
   document.addEventListener('click', onErrorMessageClick);
 
-  const onErrorMessageKeydown = (evt) => {
+  function onErrorMessageKeydown(evt) {
     if (isEscapeKey(evt)) {
       error.classList.add('hidden');
       document.removeEventListener('keydown', onErrorMessageKeydown);
+      document.removeEventListener('click', onErrorMessageClick);
     }
-  };
+  }
 
   document.addEventListener('keydown', onErrorMessageKeydown);
 };
